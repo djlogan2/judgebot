@@ -1,0 +1,176 @@
+#if( !$white )
+	#set($white = "" )
+#end
+
+#if( !$black )
+	#set($black = "")
+#end
+
+#if( $either == "true" )
+	#set($rbE = "checked")
+	#set($rbI = "")
+#else
+	#set($rbI = "checked")
+	#set($rbE = "")
+#end
+
+#if($page.firstPage == "true")
+	#set($bdisabled = 'disabled="disabled"')
+#else
+	#set($bdisabled = "")
+#end
+
+#set( $start = $page.number * $page.size )
+
+#if( $page.lastPage == "true")
+	#set( $fdisabled = 'disabled="disabled"' )
+#else
+	#set( $fdisabled = "" )
+#end
+
+<div id="gamelistform">
+<input id="page" type="hidden" value="$page.number" />
+<input id="pagesize" type="hidden" value="$page.size" />
+<table border=2>
+	<tr><td>
+		<table>
+			<tr><td><table><tr>
+				<td>#springMessage('color.white') <input id="white" type="text" value ="$white"></input></td>
+				<td>#springMessage('color.black') <input id="black" type="text" value="$black"></input></tr>
+			<tr><td>
+				<input type="radio" id="searchtypeI" name="searchtype" $rbI>#springMessage('color.white')/#springMessage('color.black')</input>
+				<input type="radio" id="searchtypeE" name="searchtype" $rbE>#springMessage('color.either')</input>
+			</td><td id="gamesearchresetcol">
+				<button id="search">#springMessage('gamelog.search')</button>
+				<button id="reset">#springMessage('gamelog.reset')</button>
+			</td></tr></table></td></tr>
+		</table>
+	</td></tr>
+	<tr><td>
+		<table class="datagridarrowrow"><tr><td>
+			<button id="top" $bdisabled>
+				<img src="#springUrl('/resources/images/back_top.png')" />
+			</button>
+		</td><td>
+			<button id="back" $bdisabled>
+				<img src="#springUrl('/resources/images/back.png')" />
+			</button>
+		</td><td class="datagridstarttotalcol">
+			${start} of $page.totalElements
+		</td><td>
+			<button id="forward" $fdisabled>
+				<img src="#springUrl('/resources/images/forward.png')" />
+			</button>
+		</td><td>
+			<button id="bottom" $fdisabled>
+				<img src="#springUrl('/resources/images/forward_bottom.png')" />
+			</button>
+		</td></tr></table>
+	</td></tr>
+	<tr><td>
+		<table id="gamelist" class="datatable">
+			<tr>
+				<th>#springMessage('gamelog.date')</th>
+				<th>#springMessage('color.white')</th>
+				<th>#springMessage('color.black')</th>
+				<th></th>
+			</tr>
+			#foreach($game in $page.content)
+				<tr icc-gameid="$game.id">
+					<td>$dateformatter.format($game.adjdate)</td>
+					<td>$game.white</td>
+					<td>$game.black</td>
+						#if( $game.adjudicationnohit == "true" )
+							#set( $decisioncolor = "nohitcolor" )
+						#else
+							#set( $lower = $game.action.toString().toLowerCase() )
+							#set( $decisioncolor = "${lower}color" )
+						#end
+						<td class="$decisioncolor">
+						#if($game.adjudicationnohit == "true")
+							<img src="#springUrl('/resources/images/ruleskipped.png')" />
+						#else
+							<img src="#springUrl('/resources/images/rulehit.png')" />
+						#end
+					</td>
+				</tr>
+			#end
+		</table>
+	</td></tr>
+</table>
+</div>
+<script>
+	var setupPostMap = function() {
+		var map = {
+			page: $("#page").val(),
+			pagesize: $("#pagesize").val()
+		};
+		var mapv = $("#white").val();
+		if(mapv != undefined)
+			map.white = mapv;
+		mapv = $("#black").val();
+		if(mapv != undefined)
+			map.black = mapv;
+		mapv = $("#searchtypeE").attr("checked");
+		if(mapv == "checked")
+			map.either = true;
+		else
+			map.either = false;
+		return map;
+	}
+	var doreset = function() {
+		$("#white").val("");
+		$("#black").val("");
+		dotop();
+	};
+	var dotop = function() {
+		var map = setupPostMap();
+		map.page = 0;
+		$('#gamelistdiv').load("#springUrl('/gamelist')",map);
+	};
+	var dobottom = function() {
+		var map = setupPostMap();
+		map.page = $page.totalPages - 1;
+		$('#gamelistdiv').load("#springUrl('/gamelist')",map);
+	};
+	var doback = function() {
+		var map = setupPostMap();
+		map.page--;
+		$('#gamelistdiv').load("#springUrl('/gamelist')",map);
+	};
+	var doforward = function() {
+		var map = setupPostMap();
+		map.page++;
+		$('#gamelistdiv').load("#springUrl('/gamelist')",map);
+	};
+	var doclick = function() {
+		var inboard = $("#chessBoard1").attr("icc-gameid");
+		if(inboard != null) {
+			$("tr[icc-gameid="+inboard+"]").removeClass("gameselected");
+		};
+		loadgame($(this).attr("icc-gameid"));
+		$(this).addClass("gameselected");
+		$("#chessBoard1").attr("icc-gameid", $(this).attr("icc-gameid"));
+	};
+	var dohover = function() {
+		$(this).addClass("datatablehover");
+	};
+	var donohover = function() {
+		$(this).removeClass("datatablehover");
+	};
+	$(document).ready(function(){
+		$(document).on("mouseover", "#gamelist tr", dohover);
+		$(document).on("mouseout", "#gamelist tr", donohover);
+		$(document).on("click", "#gamelist tr", doclick);
+		$(document).on("click", "#top", dotop);
+		$(document).on("click", "#bottom", dobottom);
+		$(document).on("click", "#back", doback);
+		$(document).on("click", "#forward", doforward);
+		$(document).on("click", "#search", dotop);
+		$(document).on("click", "#reset", doreset);
+		var inboard = $("#chessBoard1").attr("icc-gameid");
+		if(inboard != null) {
+			$("tr[icc-gameid="+inboard+"]").addClass("gameselected");
+		};
+	});
+</script>

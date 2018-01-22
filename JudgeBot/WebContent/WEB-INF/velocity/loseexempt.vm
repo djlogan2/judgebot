@@ -1,0 +1,115 @@
+#if($losepage.firstPage == "true")
+	#set($bdisabled = 'disabled="disabled"')
+#else
+	#set($bdisabled = "")
+#end
+
+#set( $losestart = $losepage.number * $losepage.size )
+
+#if( $losepage.lastPage == "true")
+	#set( $fdisabled = 'disabled="disabled"' )
+#else
+	#set( $fdisabled = "" )
+#end
+#if(!$losesearch)
+	#set($losesearch = "")
+#end
+
+<div id="loselistform">
+<input id="losepage" type="hidden" value="$losepage.number" />
+<input id="losepagesize" type="hidden" value="$losepage.size" />
+<table border=2>
+	<tr><th>LoseExempt List</th></tr>
+	<tr><td>
+		<table>
+			<tr><td><table><tr>
+				<td>Search User:<input id="losesearch" type="text" value ="$losesearch"></input></td>
+			</td><td id="losesearchresetcol">
+				<button id="blosesearch">#springMessage('gamelog.search')</button>
+				<button id="blosereset">#springMessage('gamelog.reset')</button>
+			</td></tr></table></td></tr>
+		</table>
+	</td></tr>
+	<tr><td>
+		<table class="datagridarrowrow"><tr><td>
+			<button id="losetop" $bdisabled>
+				<img src="#springUrl('/resources/images/back_top.png')" />
+			</button>
+		</td><td>
+			<button id="loseback" $bdisabled>
+				<img src="#springUrl('/resources/images/back.png')" />
+			</button>
+		</td><td class="datagridstarttotalcol">
+			${losestart} of $losepage.totalElements
+		</td><td>
+			<button id="loseforward" $fdisabled>
+				<img src="#springUrl('/resources/images/forward.png')" />
+			</button>
+		</td><td>
+			<button id="losebottom" $fdisabled>
+				<img src="#springUrl('/resources/images/forward_bottom.png')" />
+			</button>
+		</td></tr></table>
+	</td></tr>
+	<tr><td>
+		<table id="loselist" class="datatable">
+			<tr>
+				<th>Handle</th>
+				<th>UID</th>
+				<th>Created</th>
+			</tr>
+			#foreach($user in $losepage.content)
+				<tr>
+					<td>$user.icchandle</td>
+					<td>$user.uniquehandle</td>
+					<td>$user.created</td>
+				</tr>
+			#end
+		</table>
+	</td></tr>
+</table>
+</div>
+<script>
+	var lsetupPostMap = function() {
+		var map = {
+			page: $("#losepage").val(),
+			pagesize: $("#losepagesize").val()
+		};
+		var mapv = $("#losesearch").val();
+		if(mapv != undefined)
+			map.search = mapv;
+		return map;
+	}
+	var ldoreset = function() {
+		$("#losesearch").val("");
+		dotop();
+	};
+	var ldotop = function() {
+		var map = lsetupPostMap();
+		map.page = 0;
+		$('#loselistform').load("#springUrl('/loseexempt')",map);
+	};
+	var ldobottom = function() {
+		var map = lsetupPostMap();
+		map.page = $losepage.totalPages - 1;
+		$('#loselistform').load("#springUrl('/loseexempt')",map);
+	};
+	var ldoback = function() {
+		var map = lsetupPostMap();
+		map.page--;
+		$('#loselistform').load("#springUrl('/loseexempt')",map);
+	};
+	var ldoforward = function() {
+		var map = lsetupPostMap();
+		map.page++;
+		$('#loselistform').load("#springUrl('/loseexempt')",map);
+	};
+	$(document).ready(function(){
+		$(document).on("click", "#losetop", ldotop);
+		$(document).on("click", "#losebottom", ldobottom);
+		$(document).on("click", "#loseback", ldoback);
+		$(document).on("click", "#loseforward", ldoforward);
+		$(document).on("click", "#blosesearch", ldotop);
+		$(document).on("click", "#blosereset", ldoreset);
+	});
+</script>

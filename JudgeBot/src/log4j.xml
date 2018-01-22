@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE log4j:configuration SYSTEM "http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/xml/doc-files/log4j.dtd">
+
+<log4j:configuration debug="true">
+
+    <appender name="FILE_APPENDER" class="org.apache.log4j.RollingFileAppender">
+        <param name="File" value="judgebot-log4j.log"/>
+        <param name="Threshold" value="TRACE"/>
+        <param name="append" value="false"/>
+        <param name="maxFileSize" value="10MB"/>
+        <param name="maxBackupIndex" value="50"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-4p [%t] %C - %m%n"/>
+        </layout>
+    </appender>
+
+    <!-- Spring -->
+    <logger name="org.springframework">
+        <level value="TRACE"/>
+        <appender-ref ref="FILE_APPENDER"/>
+    </logger>
+    <logger name="org.springframework.beans">
+        <level value="TRACE"/>
+        <appender-ref ref="FILE_APPENDER"/>
+    </logger>
+    <logger name="org.springframework.core.io">
+        <level value="TRACE"/>
+        <appender-ref ref="FILE_APPENDER"/>
+    </logger>
+    <logger name="org.springframework.transaction">
+        <level value="ERROR"/>
+        <appender-ref ref="FILE_APPENDER"/>
+    </logger>
+    <logger name="org.springframework.orm">
+        <level value="ERROR"/>
+        <appender-ref ref="FILE_APPENDER"/>
+    </logger>
+    <!-- Hibernate -->
+    <logger name="org.hibernate">
+        <level value="ERROR"/>
+        <appender-ref ref="FILE_APPENDER"/>
+    </logger>
+
+    <!-- ICC -->
+    <logger name="chessclub.com">
+        <level value="TRACE"/>
+        <appender-ref ref="FILE_APPENDER"/>
+    </logger>
+
+    <!-- Parser -->
+    <logger name="chessclub.com.icc.parser">
+        <level value="INFO"/>
+        <appender-ref ref="FILE_APPENDER"/>
+    </logger>
+
+    <!-- Raw socket data input -->
+    <logger name="chessclub.com.icc.ICCInstance.rawdata">
+        <level value="ERROR"/>
+        <appender-ref ref="FILE_APPENDER"/>
+    </logger>
+
+    <!-- Packets sent -->
+    <logger name="chessclub.com.icc.ICCInstance.packets">
+        <level value="ERROR"/>
+        <appender-ref ref="FILE_APPENDER"/>
+    </logger>
+
+    <root>
+        <level value="TRACE"/>
+        <appender-ref ref="FILE_APPENDER"/>
+    </root>
+</log4j:configuration>

@@ -1,0 +1,76 @@
+ #if($showscore == "y")
+	#if($game.whodisconnected == "NONE")
+		#set($scorecolor = "#FFFFE0")
+	#elseif($game.score > 0)
+		#if($game.ismate == "true")
+			#set($scorecolor = "#00FF00")
+		#else
+			#set($scorecolor = "#90EE90")
+		#end
+	#elseif($game.score < 0)
+		#if($game.ismate == "true")
+			#set($scorecolor = "#FF0000")
+		#else
+			#set($scorecolor = "#CD5C5C")
+		#end
+	#else
+		#set($scorecolor = "#FFFFE0")
+	#end
+	
+	#if($game.ismate == "true")
+		#set($dispscore = "Mate/"+$game.score)
+	#else
+		#if($formatter)
+			$formatter.setMinimumFractionDigits(2)
+			#set( $dispscore = $formatter.format($game.scoredouble) )
+		#else
+			#set($dispscore = "0.00")
+		#end
+	#end
+#end
+
+<table class="chessclock">
+	<tr>
+		#if($clockdigits[0] == 0 && $clockdigits[1] == 0)
+			<td align=left width="180">
+		#else
+			<td align=left width="160">
+		#end
+			<table border=5 color=white>
+				<tr>
+					<td bgcolor="black">
+						<center>
+							#if($clockdigits[0] > 0 || $clockdigits[1] > 0)
+								<img src="#springUrl("/resources/images/dg${clockdigits[0]}.gif")">
+								<img src="#springUrl("/resources/images/dg${clockdigits[1]}.gif")">
+								<img src="#springUrl('/resources/images/dgc.gif')">
+							#end
+							<img src="#springUrl("/resources/images/dg${clockdigits[2]}.gif")">
+							<img src="#springUrl("/resources/images/dg${clockdigits[3]}.gif")">
+							<img src="#springUrl('/resources/images/dgc.gif')">
+							<img src="#springUrl("/resources/images/dg${clockdigits[4]}.gif")">
+							<img src="#springUrl("/resources/images/dg${clockdigits[5]}.gif")">
+							#if($clockdigits[0] == 0 && $clockdigits[1] == 0)
+								<img src="#springUrl('/resources/images/dgp.gif')">
+								<img src="#springUrl("/resources/images/dg${clockdigits[6]}.gif")">
+								<img src="#springUrl("/resources/images/dg${clockdigits[7]}.gif")">
+								<img src="#springUrl("/resources/images/dg${clockdigits[8]}.gif")">
+							#end
+						</center>
+					</td>
+				</tr>
+			</table>
+		</td>
+		<td>
+			#if($showscore == "y")
+				<table cellpadding=5 class="scoretable"><tr><td style="background-color: $scorecolor">$dispscore</td></tr></table>
+			#end
+		</td>
+		<td class="clockusername" style="color: $clockcolor;">
+			#if($disconnected == "y")
+				<img src="#springUrl('/resources/images/disconnector.png')" />
+			#end
+			$clockname
+		</td>
+	</tr>
+</table>

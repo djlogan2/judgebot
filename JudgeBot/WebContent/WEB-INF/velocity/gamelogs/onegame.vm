@@ -1,0 +1,101 @@
+#if(!$game)
+	#set($game = {
+		"id": "none",
+		"black": "#springMessage('gamelog.nogame')",
+		"blackdigits": [0,0,0,0,0,0,0,0,0],
+		"fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+		"white": "#springMessage('gamelog.nogame')",
+		"whitedigits": [0,0,0,0,0,0,0,0,0],
+		"whodisconnected": "NONE",
+		"score": 0,
+		"scoredouble": 0.00,
+		"ismate": false,
+		"adjudicationnohit": true,
+		"colortomove": "WHITE",
+		"lastMoves": ""
+	})
+#end
+
+#set($topdisconnected = "n")
+#set($bottomdisconnected = "n")
+#set($topshowscore = "n")
+#set($bottomshowscore = "n")
+#if($game.colortomove == "WHITE")
+	#set($topdigits = $game.blackdigits)
+	#set($topname = $game.black)
+	#set($bottomdigits = $game.whitedigits)
+	#set($bottomname = $game.white)
+	#set($topcolor = "black")
+	#set($bottomcolor = "white")
+	#if($game.whodisconnected == "WHITE")
+		#set($bottomdisconnected = "y")
+		#set($bottomshowscore = "y")
+	#elseif($game.whodisconnected == "BLACK")
+		#set($topdisconnected = "y")
+		#set($topshowscore = "y")
+	#end
+#else
+	#set($topdigits = $game.whitedigits)
+	#set($topname = $game.white)
+	#set($bottomdigits = $game.blackdigits)
+	#set($bottomname = $game.black)
+	#set($topcolor = "white")
+	#set($bottomcolor = "black")
+	#if($game.whodisconnected == "WHITE")
+		#set($topdisconnected = "y")
+		#set($topshowscore = "y")
+	#elseif($game.whodisconnected == "BLACK")
+		#set($bottomdisconnected = "y")
+		#set($bottomshowscore = "y")
+	#end
+#end
+
+#if($game.whodisconnected == "NONE")
+  #set($bottomshowscore = "y")
+#end
+
+#if( $game.adjudicationnohit == "true" )
+	#set( $decisiontext = "#springMessage('gamelogs.noruletext')" )
+	#set( $decisioncolor = "nohitcolor" )
+#else
+	#set( $lower = $game.action.toString().toLowerCase() )
+	#set( $code = "gamelogs.${lower}text" )
+	#set( $decisiontext = "#springMessage($code)" )
+	#set( $decisioncolor = "${lower}color" )
+#end
+
+<div>
+	<table>
+		<tr style="background-color: $topcolor;">
+			<td>
+				#set($clockdigits = $topdigits)
+				#set($clockname = $topname)
+				#set($clockcolor = $bottomcolor)
+				#set($disconnected = $topdisconnected)
+				#set($showscore = $topshowscore)
+				#parse("gamelogs/clock.vm")
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<div id="chessBoard1" icc-gameid="$game.id" icc-game-fen="$game.fen"></div>
+			</td>
+		</tr>
+		<tr style="background-color: $bottomcolor;">
+			<td>
+				#set($clockdigits = $bottomdigits)
+				#set($clockname = $bottomname)
+				#set($clockcolor = $topcolor)
+				#set($disconnected = $bottomdisconnected)
+				#set($showscore = $bottomshowscore)
+				#parse("gamelogs/clock.vm")
+			</td>
+		</tr>
+		<tr><td class="lastmoves">
+		#if($game.lastMoves)
+			$game.lastMoves
+		#end
+		</td></tr>
+		<tr><td class="decision $decisioncolor">$decisiontext</td></tr>
+	</table>
+</div>

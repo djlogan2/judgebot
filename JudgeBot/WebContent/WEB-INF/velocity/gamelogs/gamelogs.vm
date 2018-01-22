@@ -1,0 +1,38 @@
+#parse("ribbon.vm")
+<div id="bigpane">
+	<div id="gameboarddiv">
+		#parse("gamelogs/onegame.vm")
+	</div>
+	<div id="rulewindowdiv">
+		#parse("gamelogs/rulewindow.vm")
+	</div>
+	<div id="gamelistdiv"></div>
+</div>
+<script type="text/javascript" src="#springUrl('/resources/js/ChessFen.js')">x</script>
+<script>
+	chessObj = new DHTMLGoodies.ChessFen({
+		imageFolder: "#springUrl('/resources/images/')",
+		cssPath: "#springUrl('/resources/css/chess.css')"
+	});
+	var loadcomplete = function(response, status, request) {
+		$("#gameboarddiv").replaceWith(this);
+		chessObj.loadFen($("#chessBoard1").attr("icc-game-fen"),'chessBoard1');
+	};
+	
+	var loadgame = function(game) {
+		var new_gameboarddiv = $("<div id='gameboarddiv'></div>");
+		var new_rulewindowdiv = $("<div id='rulewindowdiv'></div>");
+		new_gameboarddiv.load("#springUrl('/game/')"+game, loadcomplete);
+		new_rulewindowdiv.load("#springUrl('/gamerules/')"+game, function(){$("#rulewindowdiv").replaceWith(this)});
+	};
+
+	$(document).ready(function(){
+		$('#gamelistdiv').load("#springUrl('/gamelist')",{
+			page: 0,
+			pagesize: 25
+		});
+		chessObj.loadFen($("#chessBoard1").attr("icc-game-fen"),'chessBoard1');
+		//loadgame("none");
+	});
+</script>	
+#parse("bottom.vm")

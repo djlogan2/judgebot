@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:context="http://www.springframework.org/schema/context"
+		xmlns:tx="http://www.springframework.org/schema/tx"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans
+							http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+							http://www.springframework.org/schema/tx
+							http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+							http://www.springframework.org/schema/context
+							http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+	<context:annotation-config />
+	<context:component-scan base-package="chessclub.com.icc.jb" />
+
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+	<bean id="messageSource"
+		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<property name="basenames" value="WEB-INF/i8n/messages" />
+		<property name="defaultEncoding" value="UTF-8" />
+	</bean>
+
+	<bean id="dataSource" class="org.apache.tomcat.jdbc.pool.DataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="org.postgresql.Driver" />
+		<property name="url" value="jdbc:postgresql://p-service-database.l.chessclub.com:5432/judgebot" />
+		<property name="username" value="judgebot" />
+		<property name="password" value="" />
+	</bean>
+	
+	<bean id="emf"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="jpaVendorAdapter">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+		</property>
+		<property name="packagesToScan" value="chessclub.com.icc.jb" />
+		<property name="jpaProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</prop>
+				<prop key="hibernate.max_fetch_depth">3</prop>
+				<prop key="hibernate.jdbc.fetch_size">50</prop>
+				<prop key="hibernate.jdbc.batch_size">10</prop>
+				<prop key="hibernate.show_sql">false</prop>
+				<prop key="hibernate.default_schema">judgebot</prop>
+				<!-- <prop key="hibernate.hbm2ddl.auto">update</prop> -->
+			</props>
+		</property>
+	</bean>
+
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="emf" />
+	</bean>
+
+	<!--
+		You can override these with environment variables ICC_XXXX=
+		To actually allow the system to set testOnly=FALSE, you need to set an environment variable
+		ALLOW_PRODUCTION=allow in the server instance where this war file runs
+	 -->
+	<bean id="icc" class="chessclub.com.icc.jb.icc.ICCBean">
+		<!--
+		<property name="db" ref="dataSource" />
+		<property name="ms" ref="messageSource" />
+		 -->
+		<property name="host" value="chessclub.com" />
+		<property name="port" value="23" />
+		<property name="testOnly" value="false" />
+		<property name="userid" value="judgebot" />
+		<property name="password" value="" />
+    	<property name="uciProgram" value="/home/djlogan/stockfish-8-linux/Linux/stockfish_8_x64_modern" />
+		<property name="messageWinner" value="true" />
+		<property name="tellWinner" value="true" />
+		<property name="adminPassword" value="" />
+
+		<property name="socketBufferSize" value="4096" />
+		<property name="bufferSize" value="4096" />
+		<property name="maxEngines" value="3" />
+		<property name="timeDelay" value="60" />
+		<property name="messageLoser" value="false" />
+		<property name="tellLoser" value="false" />
+	</bean>
+	
+	<bean id="runningBean" class="java.lang.Thread" init-method="start">
+		<constructor-arg ref="icc" />
+	</bean>
+ </beans>

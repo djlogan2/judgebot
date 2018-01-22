@@ -1,0 +1,33 @@
+package chessclub.com.enums;
+
+public enum ICCList {
+    ALIAS,
+    CENSOR,
+    DM,
+    FORCE,
+    IM,
+    WIM,
+    FM,
+    MUZZLE,
+    NORATED,
+    PLAYBOTH,
+    SSHOUT,   
+    BANNED,
+    CHANNEL,
+    EXEMPT,
+    GM,
+    IPNOTIFY,
+    NOBEST,
+    NOTIFY,
+    PMUZZLE,
+    WFM,      
+    BUSTER,
+    COMPUTER,
+    FILTER,
+    GNOTIFY,
+    KMUZZLE,
+    NOPASS,
+    NOUNRATED,
+    SIMUL,
+    WGM;
+}

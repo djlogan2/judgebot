@@ -1,0 +1,5 @@
+/bin/
+/target/
+/lib/
+/.DS_Store
+/trainer-log4j.log

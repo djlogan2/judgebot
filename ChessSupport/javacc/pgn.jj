@@ -1,0 +1,182 @@
+/* pgn.jj The ICC rule parsing rules */
+options {
+   STATIC = false ;
+   DEBUG_PARSER = false;
+   DEBUG_TOKEN_MANAGER = false;
+}
+
+PARSER_BEGIN(PGNParser)
+package david.logan.chess.support.pgn.parser;
+
+import java.util.ArrayList;
+
+import david.logan.chess.support.IllegalMoveException;
+import david.logan.chess.support.PGNGame; 
+
+@SuppressWarnings("all")
+public class PGNParser {
+	ArrayList<PGNGame> gamelist = new ArrayList<PGNGame>();
+	PGNGame current = null;
+}
+PARSER_END(PGNParser)
+
+SKIP : { " " }
+SKIP : { "\n" | "\r" | "\r\n" }
+
+/* MORE : {"{": IN_COMMENT } */
+SKIP : {"{": IN_COMMENT }
+< IN_COMMENT > TOKEN : { < COMMENT  : (~["}"])+ > }
+< IN_COMMENT > SKIP : { "}" : DEFAULT } 
+
+SKIP : { ";": IN_SINGLE_LINE_COMMENT }
+< IN_SINGLE_LINE_COMMENT > SPECIAL_TOKEN : { < SINGLE_LINE_COMMENT: "\n"|"\r"|"\r\n" > : DEFAULT }
+< IN_SINGLE_LINE_COMMENT > TOKEN : { < LINECOMMENT  : (~["\n","\r"])+ > }
+
+TOKEN : { < STRLIT   : (["\""])(~["\""])*(["\""]) > }
+TOKEN : { < INTEGER  : (["0"-"9"])+ > }
+TOKEN : { < PERIOD   : "." > }
+TOKEN : { < LBRACKET : "[" > }
+TOKEN : { < RBRACKET : "]" > }
+TOKEN : { < OPAREN   : "(" > }
+TOKEN : { < CPAREN   : ")" > }
+
+TOKEN : { < GAMETERM : "1-0"|"0-1"|"1/2-1/2"|"*" > }
+TOKEN : { < MOVE     : ("P"|"N"|"B"|"R"|"Q"|"K")?(["a"-"h"])?(["1"-"8"])?("x")?(["a"-"h"]["1"-"8"])("="("P"|"N"|"B"|"R"|"Q"|"K"))?("+"|"#")? > }
+TOKEN : { < TAGNAME  : (["a"-"z"]|["A"-"Z"]|["0"-"9"]|"_")+ > }
+TOKEN : { < CASTLE  : "O-O"("-O")?("+"|"#")? > }
+
+TOKEN : { < NAG      : ("$")(["0"-"9"])+ > }
+TOKEN : { < ANNOTATION : "!"|"?"|"!!"|"!?"|"?!"|"??" > }
+
+
+ArrayList<PGNGame> parsefile() throws IllegalMoveException, Exception :
+	{
+	}
+	{
+		(pgngame())*
+		{ return gamelist; }
+	}
+
+PGNGame pgngame() throws IllegalMoveException, Exception :
+	{
+		Token t = null;
+		current = new PGNGame();
+	}
+	{
+		(tagpairsection())?
+		(movetextsection())?
+		t=<GAMETERM>
+		{
+			current.setResult(t.image);
+			if(current.isValid())
+				gamelist.add(current);
+			current = null;
+			return gamelist.get(gamelist.size()-1);
+		}
+	}
+	
+void tagpairsection() :
+	{
+	}
+	{
+		(tagpair())+
+	}
+void tagpair() :
+	{
+		Token tag;
+		Token value;
+	}
+	{
+		<LBRACKET>
+		tag=<TAGNAME>
+		value=<STRLIT>
+		<RBRACKET>
+		{
+			current.addTag(tag.image, value.image.replaceAll("\"", ""));
+		}
+	}
+void movetextsection() throws IllegalMoveException, Exception :
+	{
+	}
+	{
+		movelist()
+	}
+	
+void movelist() throws IllegalMoveException, Exception :
+	{
+	}
+	{
+		(
+			sanmove()
+			(
+				<OPAREN>
+				{
+					current.startvariation();
+				}
+				movelist()
+				<CPAREN>
+				{
+					current.endvariation();
+				}
+			)*
+		)+
+	}
+void sanmove() throws IllegalMoveException, Exception :
+	{
+		Token moveno = null;
+		Token move = null;
+		Token ann = null;
+		Token nag = null;
+		String com = null;
+		ArrayList<String> comments = null;
+	}
+	{
+		(
+			moveno=<INTEGER>
+			(<PERIOD>)*
+		)?
+		(
+			move=<MOVE>
+			|
+			move=<CASTLE>
+		)
+		(
+			ann=<ANNOTATION>
+			|
+			nag=<NAG>
+		)?
+		(
+			com=comment()
+			{
+				if(comments == null)
+					comments = new ArrayList<String>();
+				comments.add(com);
+			}
+		)*
+		{
+			current.addmove((moveno == null?null:moveno.image),
+					move.image,
+					(ann == null ? null : ann.image),
+					(nag == null ? null : nag.image),
+					comments);
+		}
+	}
+String comment() :
+	{
+		Token t;
+	}
+	{
+		(
+			t=<COMMENT>
+			{
+				return t.image;
+			}
+		)
+		|
+		(
+			t=<LINECOMMENT>
+			{
+				return t.image;
+			}
+		)
+	}

@@ -1,0 +1,295 @@
+#parse("ribbon.vm")
+<div id="rulestablediv" >
+	<table id="rulestable" class="datatable">
+		<tr class="ruleheader">
+			<th>Rule</th>
+			<th>The disconnector should</th>
+			<th>Ruleset Hits</th>
+			<th>Ruleset Misses</th>
+			<th>Total Hits</th>
+			<th>Total Misses</th>
+		<th>D</th>
+		</tr>
+			#set($oldorder = "")
+		#foreach($rule in $rules)
+			#set($oldorder = "${oldorder}${rule.ruleorder},")
+			#if($rule.deleted == 0)
+				#set($cdeleted = "")
+			#else
+				#set($cdeleted = "class='deleted'")
+			#end
+			<tr $cdeleted rule-id="$rule.id" rule-order="$rule.ruleorder" orig-deleted="$rule.deleted">
+				<td>$rule.rule</td>
+				<td>$rule.action</td>
+				<td>$rule.rulehit</td>
+				<td>$rule.rulemissed</td>
+				<td>$rule.hit</td>
+				<td>$rule.missed</td>
+				#if($rule.deleted == 0)
+					<td><img class="deletebutton" src="#springUrl('/resources/images/delete.png')"/></td>
+				#else
+					<td><img class="deletebutton" src="#springUrl('/resources/images/undelete.gif')"/></td>
+				#end
+		#end
+	</table>
+	<div id="adjrulesformdiv">
+		<form action="#springUrl('/adjrules')" method="post">
+			<input type="hidden" id="updatearray" name="updatearray" value="[]" />
+			<table style="border-collapse: collapse; margin: 0; padding: 0;">
+			<tr><td>
+				<input type="checkbox" status="0" name="deleted" id="showdeleted">Show deleted</input>
+			</td></tr>
+			<tr><td>
+				<table style="border-collapse: collapse; margin: 0; padding: 0;">
+					<tr><td>
+						<input id="newruletext" type="text"></input>
+						<select id="newruleaction" name="newruleaction">
+							#foreach($action in $actions)
+								<option value="$action">$action</option>
+							#end
+						</select>
+						<button type="button" disabled="disabled" id="addrule">Add</button>
+					</td></tr>
+					<tr><td>
+						<div id="parseerror"></div>
+					</td></tr>
+				</table>
+			<tr><td>
+				<button disabled="disabled" id="save">Save</button>
+			</td></tr>
+			</table>
+		</form>
+	</div>
+</div>
+<div id="variablestable" class="datatable">
+	<table class=variables>
+		<tr class=variableheaders><th>Variables available for use</th>
+		#foreach($var in $variables)
+			<tr><td>$var</td></tr>
+		#end
+	</table>
+</div>
+<script>
+var newrulecheck = function(evt) {
+	return ($("[rule-id=new]").length > 0); 
+};
+
+var outoforder = function() {
+	var order = -1;
+	var outoforder = false;
+	$("#rulestable tr").each(function(){
+		if(parseInt($(this).attr("rule-order")) < order) {
+			outoforder = true;
+		};
+		order = parseInt($(this).attr("rule-order"));
+	});
+	return outoforder;
+}
+
+var deletecheck = function() {
+	return ($("[new-deleted]").length > 0); 
+};
+
+var setsavebutton = function() {
+	if(outoforder() || deletecheck() || newrulecheck()) {
+		$("#save").removeAttr("disabled");
+	} else {
+		$("#save").attr("disabled", "disabled");
+	};
+};
+
+var mouseup = function(evt) {
+	var row = $("[moving-row]");
+	if($(row).length == 0)
+		return;
+	$(row).removeAttr("moving-row");
+	$(row).removeAttr("cy");
+	$(row).find("td").css('padding-top', '');
+	$(row).find("td").css('padding-bottom', '');
+	$(this).removeClass("datatabledrag");
+	setsavebutton();
+	$("body").css('cursor','default');
+};
+
+var mouseenter = function(evt) {
+	if($(this).attr("moving-row") == "this")
+		return;
+	if($($(this).find("th")).length != 0)
+		return;
+	var row = $("[moving-row]");
+	if($(row).length == 0)
+		return;
+	$(row).detach();
+	if(evt.clientY < $(row).attr("cy"))
+		$(row).insertBefore(this);
+	else
+		$(row).insertAfter(this);
+	$(row).attr("cy", evt.clientY);
+	return false;
+}
+
+var deletebutton = function(evt) {
+	var row = $(this).closest("tr");
+
+	var isdeleted;
+	if($(row).attr("new-deleted") != undefined)
+		isdeleted = $(row).attr("new-deleted");
+	else
+		isdeleted = $(row).attr("orig-deleted");
+		
+	if( isdeleted == "0" ) {
+		$(row).attr("new-deleted", "1");
+		$(row).addClass("deleted");
+		$(this).attr('src', "#springUrl('/resources/images/undelete.gif')");
+		if($("#showdeleted").attr("checked") == "checked")
+			$(row).show();
+	} else {
+		$(row).attr("new-deleted", "0");
+		$(row).removeClass("deleted");
+		$(this).attr('src', "#springUrl('/resources/images/delete.png')");
+	};
+
+	if($(row).attr("orig-deleted") == $(row).attr("new-deleted"))
+		$(row).removeAttr("new-deleted");
+
+	setsavebutton();
+	return false;
+};
+
+var mousedown = function(evt) {
+	$(this).attr("moving-row", "this");
+	$(this).find("td").css('padding-top', '1em');
+	$(this).find("td").css('padding-bottom', '1em');
+	$("body").css('cursor','move');
+	$(this).addClass("datatabledrag");
+	return false;
+};
+
+var setupsave = function(evt) {
+	var expectedorder = 1;
+	var updates = [];
+	$("#rulestable tr:not(.ruleheader)").each(function(){
+		var id = $(this).attr("rule-id");
+		var order = parseInt(parseInt($(this).attr("rule-order")));
+		var odeleted = $(this).attr("orig-deleted");
+		var ndeleted = $(this).attr("new-deleted");
+		
+		var update = undefined;
+		if(id == "new") {
+			update = {
+				function: "new",
+				ruleorder: expectedorder,
+				ruletext: $(this).find("td").first().html(),
+				ruleaction: $($(this).find("td").get(1)).html()
+			};
+			order = expectedorder;
+		} else if(ndeleted != undefined) {
+			if(odeleted == "0") {
+				update = {
+					function: "delete",
+					id: id
+				};
+			} else {
+				update = {
+					function: "undelete",
+					id: id
+				};
+			};
+		};
+		if(update != undefined)
+			updates.push(update);
+		if(order != expectedorder) {
+			updates.push({
+				function: "order",
+				id: id,
+				ruleorder: expectedorder
+			});
+		};
+		expectedorder++;
+	});
+	$("#updatearray").val(JSON.stringify(updates));
+};
+
+var xxxsetupsave = function(evt) {
+	var vdelete = "";
+	var vundelete = "";
+	$("[new-deleted]").each(function(){
+		if($(this).attr("new-deleted") == "0") {
+			vundelete += $(this).attr("rule-id") + ",";
+		} else {
+			vdelete += $(this).attr("rule-id") + ",";
+		};
+	});
+	$("#delete").val(vdelete);
+	$("#undelete").val(vundelete);
+};
+
+var showdeleted = function(evt) {
+	if($(this).attr("status") == 0) {
+		$(this).attr("status", "1");
+		$(".deleted").show();
+	} else {
+		$(this).attr("status", "0");
+		$(".deleted").hide();
+	};
+};
+
+var addclicked = function() {
+	var ruleorder=parseInt($("#rulestable tr:last").attr("rule-order"))+1;
+	var ruleaction=$("#newruleaction").val();
+	$("<tr rule-id='new' rule-order='"+ruleorder+
+		"' orig-deleted='0'><td>"+$("#newruletext").val()+
+		"</td><td>"+ruleaction+
+		"</td><td>0</td><td>0</td><td>0</td><td>0</td><td><img class='deletebutton' src='"+
+		"#springUrl('/resources/images/delete.png')"+
+		"'/></td></tr>")
+		.insertAfter($("#rulestable tr:last"));
+	$("#newruletext").val("");
+	$("#addrule").attr("disabled", "disabled");
+	setsavebutton();
+};
+
+var newruleresult = function(data, textStatus, jqXHR) {
+	if(data == "OK") {
+		$("#newruletext").attr("ok", "ok");
+		$("#parseerror").html("");
+		$("#addrule").removeAttr("disabled");
+	} else {
+		$("#newruletext").attr("ok", "notok");
+		$("#parseerror").html(data);
+		$("#addrule").attr("disabled", "disabled");
+	};
+};
+
+var newrulechanged = function() {
+	var rule = $(this).val();
+	if(rule.length != 0) {
+		$.ajax({
+			url: "#springUrl('/json/syntaxcheckrule')",
+			
+			data: {
+				rule: $(this).val()
+			},
+			type: 'POST',
+			success: newruleresult
+		});
+	} else {
+		$("#parseerror").html("");
+	};
+};
+
+$(document).ready(function(){
+	$(document).on("mousedown", "#rulestable .deletebutton", deletebutton);
+	$(document).on("mousedown", "#rulestable tr", mousedown);
+	$(document).on("mouseup", "#rulestable tr", mouseup);
+	$(document).on("mousemove", "#rulestable tr", mouseenter);
+	var ourborder = $("#newruletext").outerWidth()-$("#newruletext").width();
+	$("#newruletext").width($("#rulestable").outerWidth()-$("#newruleaction").outerWidth()-$("#addrule").outerWidth()-ourborder);
+	$("#save").on("click", setupsave);
+	$("#showdeleted").on("click", showdeleted);
+	$("#newruletext").on("keyup", newrulechanged);
+	$("#addrule").on("click", addclicked);
+});
+
+</script>
+#parse("bottom.vm")

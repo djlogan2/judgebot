@@ -1,0 +1,202 @@
+body
+{
+	 background-color: #dfe3e7;
+}
+#ribbon
+{
+	background-color: #556371;
+}
+.ribbonbutton
+{
+	background-color: transparent;
+	cursor: pointer;
+}
+#gameboarddiv
+{
+	float: left;
+}
+#rulewindowdiv
+{
+	float: left;
+}
+#rulewindow
+{
+	border-collapse: collapse;
+}
+#rulewindow th
+{
+	background-color: #5577dd;
+	color: white;
+	width: 100%;
+}
+#enginerules, #gamelist
+{
+	width: 100%;
+}
+#enginerulesformdiv
+{
+	padding-top: 2em;
+	float: left;
+}
+.engvariabletable
+{
+	margin-top: 2em;
+}
+#enginerules td
+{
+	margin: 0px;
+	padding: 0px;
+}
+.datatable
+{
+	background-color: #ccaa99;
+	color: black;
+	border-collapse: collapse;
+	border-top-style:	none;
+	border-right-style:	1px solid black;
+	border-bottom-style:	1px solid black;
+	border-left-style:	1px solid black;
+}
+.datatable th
+{
+	background-color: #555566;
+	color: white;
+	border: 1px solid black;
+}
+.datatable td
+{
+	border: 1px solid black;
+	border-left: 1px solid black;
+}
+.decision
+{
+	text-align: center
+}
+.nohitcolor {background-color: #DCDCDC;}
+.wincolor {background-color: #B22222;}
+.losecolor {background-color: #32CD32;}
+.drawcolor {background-color: #FFA500;}
+.abortcolor {background-color: #0000CD;}
+.manualcolor {background-color: #FFD700;}
+
+#gamesearchresetcol
+{
+	text-align: right;
+}
+.datagridarrowrow
+{
+	width: 100%;
+}
+.datagridstarttotalcol
+{
+	width: 100%;
+	text-align: center;
+}
+.gameselected
+{
+	background-color: #335566;
+	border: 1px solid black;
+}
+.datatablehover
+{
+	color: white;
+	background-color: #654332;
+}
+.chessclock
+{
+	border-collapse: collapse;
+	border: 1px solid black;
+	width: 100%;
+}
+.scoretable
+{
+	font-weight: bold;
+	border: 1px solid black;
+}
+.clockusername
+{
+	text-align: right;
+	font-weight: bold;
+	font-size: x-large;
+}
+}
+#rulestable
+{
+	border: 1px solid black;
+	float: left;
+	width: auto;
+}
+#rulestable tr
+{
+	border-bottom: 1px solid black;
+}
+#adjrulesformdiv
+{
+}
+#adjrulesformdiv #save
+{
+	margin-top: 1em;
+}
+#adjrules
+{
+	width: 100%;
+}
+#rulestablediv
+{
+	float: left;
+}
+#variablestable
+{
+	float: left;
+}
+.datatabledrag
+{
+	background-color: #335566;
+}
+.deleted
+{
+	display: none;
+	border: 1px solid black;
+	border-width:1px 0 1px 0;
+	width: 100px;
+	font-family:Arial;
+	font-size:12px;
+	color: white;
+	background-color: #a6abc8;
+}
+#parseerror
+{
+	background-color: red;
+	font-family: "Trebuchet MS", Helvetica, sans-serif;
+	font-size: 0.75em;
+}
+tr.skip
+{
+	background-color: #aaaaaa;
+	border: 1px solid black;
+	border-width:1px 0 1px 0;
+	font-family:Arial;
+	font-size:12px;
+}
+.skiptext
+{
+	text-align: center;
+}
+.lastmoves
+{
+	font-weight: bold;
+	font-size: 2em;
+	text-align: center;
+}
+#variableslist
+{
+	width: 100%;
+}
+#winlistform
+{
+	float: left;
+}
+#loselistform
+{
+	float: left;
+}

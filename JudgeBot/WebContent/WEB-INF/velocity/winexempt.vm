@@ -1,0 +1,115 @@
+#if($winpage.firstPage == "true")
+	#set($bdisabled = 'disabled="disabled"')
+#else
+	#set($bdisabled = "")
+#end
+
+#set( $winstart = $winpage.number * $winpage.size )
+
+#if( $winpage.lastPage == "true")
+	#set( $fdisabled = 'disabled="disabled"' )
+#else
+	#set( $fdisabled = "" )
+#end
+#if(!$winsearch)
+	#set($winsearch = "")
+#end
+
+<div id="winlistform">
+<input id="winpage" type="hidden" value="$winpage.number" />
+<input id="winpagesize" type="hidden" value="$winpage.size" />
+<table border=2>
+	<tr><th>WinExempt List</th></tr>
+	<tr><td>
+		<table>
+			<tr><td><table><tr>
+				<td>Search User:<input id="winsearch" type="text" value ="$winsearch"></input></td>
+			</td><td id="winsearchresetcol">
+				<button id="bwinsearch">#springMessage('gamelog.search')</button>
+				<button id="bwinreset">#springMessage('gamelog.reset')</button>
+			</td></tr></table></td></tr>
+		</table>
+	</td></tr>
+	<tr><td>
+		<table class="datagridarrowrow"><tr><td>
+			<button id="wintop" $bdisabled>
+				<img src="#springUrl('/resources/images/back_top.png')" />
+			</button>
+		</td><td>
+			<button id="winback" $bdisabled>
+				<img src="#springUrl('/resources/images/back.png')" />
+			</button>
+		</td><td class="datagridstarttotalcol">
+			${winstart} of $winpage.totalElements
+		</td><td>
+			<button id="winforward" $fdisabled>
+				<img src="#springUrl('/resources/images/forward.png')" />
+			</button>
+		</td><td>
+			<button id="winbottom" $fdisabled>
+				<img src="#springUrl('/resources/images/forward_bottom.png')" />
+			</button>
+		</td></tr></table>
+	</td></tr>
+	<tr><td>
+		<table id="winlist" class="datatable">
+			<tr>
+				<th>Handle</th>
+				<th>UID</th>
+				<th>Created</th>
+			</tr>
+			#foreach($user in $winpage.content)
+				<tr>
+					<td>$user.icchandle</td>
+					<td>$user.uniquehandle</td>
+					<td>$user.created</td>
+				</tr>
+			#end
+		</table>
+	</td></tr>
+</table>
+</div>
+<script>
+	var setupPostMap = function() {
+		var map = {
+			page: $("#winpage").val(),
+			pagesize: $("#winpagesize").val()
+		};
+		var mapv = $("#winsearch").val();
+		if(mapv != undefined)
+			map.search = mapv;
+		return map;
+	}
+	var doreset = function() {
+		$("#winsearch").val("");
+		dotop();
+	};
+	var dotop = function() {
+		var map = setupPostMap();
+		map.page = 0;
+		$('#winlistform').load("#springUrl('/winexempt')",map);
+	};
+	var dobottom = function() {
+		var map = setupPostMap();
+		map.page = $winpage.totalPages - 1;
+		$('#winlistform').load("#springUrl('/winexempt')",map);
+	};
+	var doback = function() {
+		var map = setupPostMap();
+		map.page--;
+		$('#winlistform').load("#springUrl('/winexempt')",map);
+	};
+	var doforward = function() {
+		var map = setupPostMap();
+		map.page++;
+		$('#winlistform').load("#springUrl('/winexempt')",map);
+	};
+	$(document).ready(function(){
+		$(document).on("click", "#wintop", dotop);
+		$(document).on("click", "#winbottom", dobottom);
+		$(document).on("click", "#winback", doback);
+		$(document).on("click", "#winforward", doforward);
+		$(document).on("click", "#bwinsearch", dotop);
+		$(document).on("click", "#bwinreset", doreset);
+	});
+</script>

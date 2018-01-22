@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
+    <wb-module deploy-name="JudgeBot">
+        <wb-resource deploy-path="/" source-path="/WebContent"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
+        <dependent-module archiveName="ICCLibrary.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/ICCLibrary/ICCLibrary">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="CustomCollections.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/CustomCollections/CustomCollections">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="ChessSupport.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/ChessSupport/ChessSupport">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="ChessUCI.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/ChessUCI/ChessUCI">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <property name="context-root" value="JudgeBot"/>
+        <property name="java-output-path" value="/JudgeBot/bin"/>
+    </wb-module>
+</project-modules>

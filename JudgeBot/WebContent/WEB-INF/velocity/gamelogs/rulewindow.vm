@@ -1,0 +1,59 @@
+#if(!$game)
+	#set($game = {
+		"adjudicationnohit": true
+	})
+#end
+
+#if( $game.adjudicationnohit == "true" )
+	#set( $decisiontext = "#springMessage('gamelogs.noruletext')" )
+	#set( $decisioncolor = "nohitcolor" )
+#else
+	#set( $lower = $game.action.toString().toLowerCase() )
+	#set( $code = "gamelogs.${lower}text" )
+	#set( $decisiontext = "#springMessage($code)" )
+	#set( $decisioncolor = "${lower}color" )
+#end
+
+<table border=2>
+	<tr><td>
+		<table id="rulewindow">
+			<tr><th>#springMessage('gamelogs.properties')</th>
+				<td><button><img src="#springUrl('/resources/images/closerules.png')"></button></td>
+			</tr>
+		</table>
+	</td></tr><tr><td>
+		<table id="enginerules" class="datatable">
+			<tr><th colspan=2>#springMessage('gamelogs.enginerule')</th></tr>
+				#foreach($eng in $game.enginerules)
+					<tr><td>$eng.rule</td><td>
+					#if(!$foreach.hasNext && $game.enginenohit == "false")
+						<img src="#springUrl('/resources/images/rulehit.png')" />
+					#else
+						<img src="#springUrl('/resources/images/delete.png')" />
+					#end
+					</td></tr>
+				#end
+		</table>
+	</td></tr><tr><td>
+		<table id="adjrules" class="datatable">
+			<tr><th colspan=2>#springMessage('gamelogs.adjudicationrule')</th></tr>
+			#foreach($adj in $game.adjudicaterules)
+				<tr><td>$adj.rule</td><td>
+				#if(!$foreach.hasNext && $game.adjudicationnohit == "false")
+					<img src="#springUrl('/resources/images/rulehit.png')" />
+				#else
+					<img src="#springUrl('/resources/images/delete.png')" />
+				#end
+				</td></tr>
+			#end
+		</table>
+	</td></tr><tr><td>
+		<table id="variableslist" class="datatable">
+			<tr><th>#springMessage('gamelogs.variablename')</th><th>#springMessage('gamelogs.variablevalue')</th></tr>
+			#foreach($var in $game.variables)
+				<tr><td>$var.variable</td><td>$var.value</td></tr>
+			#end
+		</table>
+	</td></tr>
+	<tr><td class="decision $decisioncolor">$decisiontext</td></tr>
+</table>

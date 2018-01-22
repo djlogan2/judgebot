@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+						http://www.springframework.org/schema/tx
+						http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+						http://www.springframework.org/schema/context
+						http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+	<context:annotation-config />
+	<context:component-scan base-package="chessclub.com.icc.tt" />
+
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+<!-- 	<bean id="messageSource"
+		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">  -->
+ 	<bean id="messageSource"
+		class="chessclub.com.icc.tt.I8nMessageSource">
+<!-- 
+		<property name="basenames" value="WEB-INF/i8n/messages" />
+		<property name="defaultEncoding" value="UTF-8" />
+ -->
+	</bean>
+
+	<bean id="dataSource" class="org.apache.tomcat.jdbc.pool.DataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="org.postgresql.Driver" />
+		<!--  <property name="url" value="jdbc:postgresql://p-service-database.l.chessclub.com:5432/tactical_trainer" />  -->
+		<property name="url" value="jdbc:postgresql://192.168.1.69:5432/tactical_trainer" />
+		<property name="username" value="" />
+		<property name="password" value="" />
+	</bean>
+	<bean id="emf"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="jpaVendorAdapter">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+		</property>
+		<property name="packagesToScan" value="chessclub.com.icc.tt" />
+		<property name="jpaProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</prop>
+				<prop key="hibernate.max_fetch_depth">3</prop>
+				<prop key="hibernate.jdbc.fetch_size">50</prop>
+				<prop key="hibernate.jdbc.batch_size">10</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.default_schema">tacticaltrainer</prop>
+				<!-- <prop key="hibernate.hbm2ddl.auto">update</prop> -->
+			</props>
+		</property>
+	</bean>
+
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<!-- class="org.springframework.orm.hibernate4.HibernateTransactionManager"> -->
+		<property name="entityManagerFactory" ref="emf" />
+	</bean>
+
+	<!--
+		You can override these with environment variables ICC_XXXX=
+		To actually allow the system to set testOnly=FALSE, you need to set an environment variable
+		ALLOW_PRODUCTION=allow in the server instance where this war file runs
+	 -->
+	<bean id="icc" class="chessclub.com.icc.tt.ICCBean">
+		<property name="host" value="chessclub.com" />
+		<property name="port" value="23" />
+		<property name="trainerUserid" value="" />
+		<property name="trainerPassword" value="" />
+		<property name="collectorUserid" value="" />
+		<property name="collectorPassword" value="" />
+		<property name="socketBufferSize" value="4096" />
+		<property name="bufferSize" value="4096" />
+		<property name="uciInTacticTime" value="45" />
+		<property name="uciNotInTacticTime" value="5" />
+		<property name="uciThreads" value="3" />
+    	<!--  <property name="uciProgram" value="/home/djlogan/stockfish-5-linux/Linux/stockfish_14053109_x64_modern" />  -->
+    	<property name="uciProgram" value="/Users/davidlogan/Documents/stockfish-6-mac/Mac/stockfish-6-sse42" />
+	</bean>
+	<bean id="runningBean" class="java.lang.Thread" init-method="start">
+		<constructor-arg ref="icc" />
+	</bean>
+ </beans>

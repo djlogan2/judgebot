@@ -1,0 +1,228 @@
+/* icc.jj The ICC rule parsing rules */
+options {
+   STATIC = false ;
+}
+
+PARSER_BEGIN(ICCParser)
+package chessclub.com.icc.parser;
+
+import chessclub.com.icc.jb.ifac.parserInterface;
+
+@SuppressWarnings("all")
+public class ICCParser {
+   private parserInterface ifac = null;
+//   public static void main( String[] args ) throws ParseException, TokenMgrError {
+//      ICCParser parser = new ICCParser( System.in );
+//      try
+//      {
+//      	parser.Start(null);
+//      } catch(Exception e) {
+//      	e.printStackTrace();
+//      }
+//  }
+  static private boolean bothint(Object left, Object right)
+  {
+  	if(left instanceof String || right instanceof String) return false;
+  	return true;
+  }
+}
+PARSER_END(ICCParser)
+
+SKIP : { " " }
+SKIP : { "\n" | "\r" | "\r\n" }
+
+TOKEN : { < NUMBER : (["-"])?(["0"-"9"])+ > }
+TOKEN : { < ID     : (["a"-"z"]|["A"-"Z"])(["a"-"z"]|["A"-"Z"]|["0"-"9"]|"_")+ > }
+TOKEN : { < STRLIT : (["\""])(~["\""])+(["\""]) > }
+
+TOKEN : { < GE     : ">=" > }
+TOKEN : { < LE     : "<=" > }
+TOKEN : { < EQ     : "=" > }
+TOKEN : { < NE     : "!="|"<>" > }
+TOKEN : { < GT     : ">" > }
+TOKEN : { < LT     : "<" > }
+
+TOKEN : { < NOT    : "!" > }
+
+TOKEN : { < AND     : "&" > }
+TOKEN : { < OR      : "|" > }
+
+TOKEN : { < OPAREN  : "(" > }
+TOKEN : { < CPAREN  : ")" > }
+
+TOKEN : { < MULT    : "*" > }
+TOKEN : { < DIV     : "/" > }
+TOKEN : { < PLUS    : "+" > }
+TOKEN : { < MINUS   : "-" > }
+
+boolean booleanRule(parserInterface ifac) throws Exception :
+	{
+		boolean b;
+		this.ifac = ifac;
+	}
+	{
+		b=logicexpression()
+		(<EOF>)?
+		{ return b; }
+	}
+
+int intRule(parserInterface ifac) throws Exception :
+	{
+		Object o;
+		this.ifac = ifac;
+	}
+	{
+		o=MathExpression(true)
+		(<EOF>)?
+		{ return (Integer)o; }
+	}
+
+boolean logicexpression() throws Exception :
+	{
+		boolean b;
+		boolean f;
+	}
+	{
+		b=sublogicexpression()
+		(
+			<AND>f=sublogicexpression()
+			{b=(b&f);}
+		)*
+		{return b;}
+	}
+
+boolean sublogicexpression() throws Exception :
+	{
+		boolean b;
+		boolean f;
+	}
+	{
+		b=basic()
+		(
+			<OR>f=basic()
+			{b=(b|f);}
+		)*
+		{return b;}
+	}
+
+boolean basic() throws Exception :
+	{
+		boolean n = false;
+		boolean b;
+		Object left;
+		Object right;
+	}
+	{
+		LOOKAHEAD(3)
+		(
+			left = MathExpression(false)
+			(
+				<GE>right=MathExpression(false)
+					{b=(bothint(left,right)?(Integer)left>=(Integer)right:left.toString().compareToIgnoreCase(right.toString())>=0);}
+			|	<LE>right=MathExpression(false)
+					{b=(bothint(left,right)?(Integer)left<=(Integer)right:left.toString().compareToIgnoreCase(right.toString())<=0);}
+			|	<EQ>right=MathExpression(false)
+					{b=(bothint(left,right)?(Integer)left==(Integer)right:left.toString().compareToIgnoreCase(right.toString())==0);}
+			|	<NE>right=MathExpression(false)
+					{b=(bothint(left,right)?(Integer)left!=(Integer)right:left.toString().compareToIgnoreCase(right.toString())!=0);}
+			|	<GT>right=MathExpression(false)
+					{b=(bothint(left,right)?(Integer)left>(Integer)right:left.toString().compareToIgnoreCase(right.toString())>0);}
+			|	<LT>right=MathExpression(false)
+					{b=(bothint(left,right)?(Integer)left<(Integer)right:left.toString().compareToIgnoreCase(right.toString())<0);}
+			)
+		)
+		{return (n?!b:b);}
+		|
+		(
+			[
+				<NOT>
+				{n=true;}
+			]
+		<OPAREN>b=logicexpression()<CPAREN>)
+		{return (n?!b:b);}
+	}
+
+Object MathExpression(boolean mustBeInteger) throws Exception :
+	{
+		Object value;
+		Object i;
+	}
+	{
+		value=MathTerm(mustBeInteger)
+		(
+			<PLUS>
+				i = MathTerm(true)
+				{if(!(value instanceof Integer)) throw new Exception("Trying to add an integer to a string"); }
+				{value = (Integer)value+(Integer)i;}
+			|<MINUS>
+				i = MathTerm(true)
+				{if(!(value instanceof Integer)) throw new Exception("Trying to subtract an integer from a string"); }
+				{value = (Integer)value-(Integer)i;}
+			)*
+			{return value;}
+	}
+	
+Object MathTerm(boolean mustBeInteger) throws Exception :
+	{
+		Object value;
+		Object i;
+	}
+	{
+		value = MathPrimary(mustBeInteger)
+		(<MULT>
+			i = MathPrimary(true)
+			{if(!(value instanceof Integer)) throw new Exception("Trying to multiply a string with an integer"); }
+			{value = (Integer)i * (Integer)value;}
+		|<DIV>
+			i = MathPrimary(true)
+			{if(!(value instanceof Integer)) throw new Exception("Trying to divide a string with an integer"); }
+			{value = (Integer)value/(Integer)i;}
+		)*
+		{return value;}
+	}
+
+Object MathPrimary(boolean mustBeInteger) throws Exception :
+	{
+		Object value;
+		Token t;
+	}
+	{
+		value = getNumber()
+		 {return value;}
+		|
+		t=<STRLIT>
+		{value = t.image.substring(1,t.image.length()-1);}
+		{return value;}
+		|
+		value = getID(mustBeInteger)
+		 {return value;}
+		|
+		(<OPAREN>
+			value = MathExpression(mustBeInteger)
+		 <CPAREN>
+		)
+		 {return value;}
+	}
+
+int getNumber() :
+	{
+		Token t;
+	}
+	{
+		t=<NUMBER>
+		{return Integer.parseInt(t.image);}
+	}
+Object getID(boolean mustBeInteger) throws Exception :
+	{
+		Token t;
+	}
+	{
+		t=<ID>
+		{
+			if(mustBeInteger)
+				return ifac.getIVariable(t.image);
+			else
+				return ifac.getVariable(t.image);
+		}
+	}
+	

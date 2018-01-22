@@ -1,0 +1,145 @@
+/* icc_commands.jj The ICC JudgeBot command parser */
+options {
+   STATIC = false ;
+   DEBUG_PARSER = true ;
+   DEBUG_TOKEN_MANAGER = true;
+}
+
+PARSER_BEGIN(JudgeBotCommandParser)
+package chessclub.com.icc.jb.parser;
+
+import org.apache.log4j.Logger;
+
+import chessclub.com.icc.l2.PersonalTell;
+import chessclub.com.icc.jb.ifac.JudgeBotCommandInterface;
+
+@SuppressWarnings("all")
+public class JudgeBotCommandParser {
+	private PersonalTell p;
+	private boolean isHelper = false;
+	private JudgeBotCommandInterface ifac;
+    private static final Logger log = Logger.getLogger(JudgeBotCommandParser.class);
+}
+PARSER_END(JudgeBotCommandParser)
+
+SKIP : { " " | "\n" | "\r" | "\r\n" }
+<AFTER_KEYWORD> SKIP : { " " | "\n" | "\r" | "\r\n" }
+
+TOKEN : {
+		< HELP      : "help" > : AFTER_KEYWORD
+	|	< STATUS    : "status" > : AFTER_KEYWORD
+	|	< SUMMARY   : "summary" > : AFTER_KEYWORD
+	|	< WIN       : "win" > : AFTER_KEYWORD
+	|   < NOWIN     : "nowin" > : AFTER_KEYWORD
+	|   < INFO      : "info" > : AFTER_KEYWORD
+	|   < LOSE      : "lose" > : AFTER_KEYWORD
+	|   < NOLOSE    : "nolose" > : AFTER_KEYWORD
+	|   < RUNTIME   : "runtime" > : AFTER_KEYWORD
+	|   < MEMORY    : "memory" > : AFTER_KEYWORD
+	|   < OS        : "os" > : AFTER_KEYWORD
+	|   < LASTTELLS : "lasttells" > : AFTER_KEYWORD
+	|   < RESETMSG  : "resetmsg" > : AFTER_KEYWORD
+	|   < KILLGAME  : "killgame" > : AFTER_KEYWORD
+}
+
+<AFTER_KEYWORD> TOKEN: {
+		< ID      : (["a"-"z"]|["A"-"Z"])(["a"-"z"]|["A"-"Z"]|["0"-"9"]|"_"|"-")* >
+	|	< NUMBER  : (["-"])?(["0"-"9"])+ >
+	|	< STRLIT  : (["\""])(~["\""])+(["\""]) >
+}
+
+void parse(PersonalTell p, boolean isHelper, JudgeBotCommandInterface ifac) throws Exception :
+	{
+		this.p = p;
+		this.ifac = ifac;
+		this.isHelper = isHelper;
+		Token t1 = null;
+		Token t2 = null;
+	}
+	{
+	<HELP><EOF>
+	{ ifac.help(p); return; }
+	|
+	<WIN><EOF>
+	{ ifac.win(p, false); return; }
+	|
+	<NOWIN><EOF>
+	{ ifac.win(p, true); return; }
+	|
+	<INFO>(t1=<ID>)?<EOF>
+	{ ifac.info(p, (t1 == null?null:t1.image)); return; }
+	|
+	<LOSE>t1=<ID><EOF>
+	{ ifac.lose(p, t1.image, false); return; }
+	|
+	<NOLOSE>t1=<ID><EOF>
+	{ ifac.lose(p, t1.image, true); return; }
+	|
+	<STATUS><EOF>
+	{
+		if(p.titles().isOnDutyAdministrator() || isHelper) {
+			ifac.status(p, isHelper);
+			return;
+		};
+		throw new Exception("not.an.admin");
+	}
+	|
+	<LASTTELLS><EOF>
+	{
+		if(p.titles().isOnDutyAdministrator() || isHelper) {
+			ifac.lasttells(p, isHelper);
+			return;
+		};
+		throw new Exception("not.an.admin");
+	}
+	|
+	<RESETMSG><EOF>
+	{
+		if(p.titles().isOnDutyAdministrator() || isHelper) {
+			ifac.reset(p);
+			return;
+		};
+		throw new Exception("not.an.admin");
+	}
+	|
+	<KILLGAME><EOF>
+	{
+		if(p.titles().isOnDutyAdministrator() || isHelper) {
+			ifac.killgame(p, isHelper);
+			return;
+		};
+		throw new Exception("not.an.admin");
+	}
+	|
+	<SUMMARY>
+	(t1=<ID>(t2=<ID>)?)?
+	<EOF>
+	{
+		if(p.titles().isOnDutyAdministrator() || isHelper ) {
+			ifac.summary(p, isHelper, t1 != null ? t1.image : null, t2 != null ? t2.image : null);
+			return;
+		}
+		throw new Exception("not.an.admin");
+	}
+	|
+	<RUNTIME><EOF>
+	{
+		if(!p.titles().isOnDutyAdministrator())
+			throw new Exception("not.an.admin");
+		ifac.runtime(p); return;
+	}
+	|
+	<MEMORY><EOF>
+	{
+		if(!p.titles().isOnDutyAdministrator())
+			throw new Exception("not.an.admin");
+		ifac.memory(p); return;
+	}
+	|
+	<OS><EOF>
+	{
+		if(!p.titles().isOnDutyAdministrator())
+			throw new Exception("not.an.admin");
+		ifac.os(p); return;
+	}
+}
