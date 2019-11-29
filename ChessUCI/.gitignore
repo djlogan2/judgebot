@@ -1,2 +1,13 @@
-/bin/
-/target/
+.DS_*
+*.iws
+*.iml
+.idea_modules
+.idea/
+target/
+node/node_modules/
+node/.env
+.metadata/
+bin/
+target/
+lib/
+trainer-log4j.log*

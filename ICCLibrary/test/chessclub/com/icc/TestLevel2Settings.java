@@ -3,8 +3,6 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import chessclub.com.icc.ICCException;
-import chessclub.com.icc.ICCInstance;
 import chessclub.com.icc.handler.interfaces.IAcceptGenericPackets;
 import chessclub.com.icc.l1.BadCommand;
 import chessclub.com.icc.l1.L1ErrorOnly;

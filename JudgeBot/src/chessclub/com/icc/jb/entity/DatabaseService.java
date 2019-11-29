@@ -1,12 +1,11 @@
 package chessclub.com.icc.jb.entity;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
@@ -16,6 +15,7 @@ import javax.persistence.TypedQuery;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -38,8 +38,6 @@ public class DatabaseService implements IDatabaseService {
 	@Override
 	@Transactional(readOnly = true)
 	public Page<GameLog> listGames(Pageable page, String white, boolean exact, String black, boolean either) {
-		System.out.println("DBS: start=" + page.getOffset() + ",number=" + page.getPageSize()
-				+ ",white=" + white + ",black=" + black);
 		String select = "from GameLog GL";
 		String likeorequal = "like";
 		if(exact)
@@ -82,7 +80,7 @@ public class DatabaseService implements IDatabaseService {
 
 		Long count = countQ.getSingleResult();
 		recQ.setMaxResults(page.getPageSize());
-		recQ.setFirstResult(page.getOffset());
+		recQ.setFirstResult((int)page.getOffset());
 		List<GameLog> gamelist = recQ.getResultList();
 		return new PageImpl<GameLog>(gamelist, page, count.intValue());
 	}
@@ -370,9 +368,9 @@ public class DatabaseService implements IDatabaseService {
 	}
     @Override
     @Transactional
-    public void updateAdjudicateRules(ArrayList<HashMap<String, Object>> updateArray) throws Exception {
+    public void updateAdjudicateRules(List<Map<String, Object>> updateArray) throws Exception {
         int updated = 0;
-        for(HashMap<String,Object> update : updateArray) {
+        for(Map<String,Object> update : updateArray) {
             if("new".equals(update.get("function"))) {
                 String ruletext = (String) update.get("ruletext");
                 int ruleorder = get(update.get("ruleorder"));
@@ -412,9 +410,9 @@ public class DatabaseService implements IDatabaseService {
 
     @Override
     @Transactional
-    public void updateEngineRules(ArrayList<HashMap<String, Object>> updateArray) throws Exception {
+    public void updateEngineRules(List<Map<String, Object>> updateArray) throws Exception {
         int updated = 0;
-        for(HashMap<String,Object> update : updateArray) {
+        for(Map<String,Object> update : updateArray) {
             if("new".equals(update.get("function"))) {
                 String ruletext = (String) update.get("ruletext");
                 int ruleorder = get(update.get("ruleorder"));
@@ -503,14 +501,14 @@ public class DatabaseService implements IDatabaseService {
                             .getSingleResult();
             list = em.createQuery("select WE from WinExempt WE where WE.icchandle like :handle order by WE.icchandle asc", WinExempt.class)
                     .setParameter("handle", "%"+searchString.toLowerCase()+"%")
-                    .setFirstResult(pageRequest.getOffset())
+                    .setFirstResult((int)pageRequest.getOffset())
                     .setMaxResults(pageRequest.getPageSize())
                     .getResultList();
         } else {
             count = em.createQuery("select count(WE) from WinExempt WE", Long.class)
                     .getSingleResult();
             list = em.createQuery("select WE from WinExempt WE order by WE.icchandle asc", WinExempt.class)
-                    .setFirstResult(pageRequest.getOffset())
+                    .setFirstResult((int)pageRequest.getOffset())
                     .setMaxResults(pageRequest.getPageSize())
                     .getResultList();
         }
@@ -529,14 +527,14 @@ public class DatabaseService implements IDatabaseService {
                             .getSingleResult();
             list = em.createQuery("select LE from LoseExempt LE where LE.icchandle like :handle order by LE.icchandle asc", LoseExempt.class)
                     .setParameter("handle", "%"+searchString.toLowerCase()+"%")
-                    .setFirstResult(pageRequest.getOffset())
+                    .setFirstResult((int)pageRequest.getOffset())
                     .setMaxResults(pageRequest.getPageSize())
                     .getResultList();
         } else {
             count = em.createQuery("select count(LE) from LoseExempt LE", Long.class)
                     .getSingleResult();
             list = em.createQuery("select LE from LoseExempt LE order by LE.icchandle asc", LoseExempt.class)
-                    .setFirstResult(pageRequest.getOffset())
+                    .setFirstResult((int)pageRequest.getOffset())
                     .setMaxResults(pageRequest.getPageSize())
                     .getResultList();
         }

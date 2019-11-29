@@ -3,22 +3,19 @@
  */
 package chessclub.com.icc;
 // CHECKSTYLE:OFF
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 import chessclub.com.enums.ICCError;
 import chessclub.com.icc.handler.interfaces.IAcceptGenericPackets;
 import chessclub.com.icc.l1.BadCommand;
 import chessclub.com.icc.l1.L1ErrorOnly;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  * 

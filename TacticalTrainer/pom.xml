@@ -105,5 +105,10 @@
     	<artifactId>mockito-all</artifactId>
     	<version>1.9.5</version>
     </dependency>
+      <dependency>
+          <groupId>junit</groupId>
+          <artifactId>junit</artifactId>
+          <version>RELEASE</version>
+      </dependency>
   </dependencies>
 </project>

@@ -37,5 +37,18 @@
   		<artifactId>log4j</artifactId>
   		<version>1.2.17</version>
   	</dependency>
+      <dependency>
+          <groupId>junit</groupId>
+          <artifactId>junit</artifactId>
+          <version>4.12</version>
+          <scope>test</scope>
+      </dependency>
+      <dependency>
+          <groupId>com.chessclub.icc</groupId>
+          <artifactId>ChessSupport</artifactId>
+          <version>1.0</version>
+          <scope>system</scope>
+          <systemPath>/Users/davidlogan/workspace/judgebot/out/artifacts/ChessSupport_jar/ChessSupport.jar</systemPath>
+      </dependency>
   </dependencies>
 </project>

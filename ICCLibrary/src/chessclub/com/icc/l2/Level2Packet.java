@@ -2,6 +2,7 @@ package chessclub.com.icc.l2;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -120,7 +121,7 @@ public class Level2Packet {
      * @return The level 1 packet type. Returns null if unable to return a packet at the requested level
      */
     public CN level1Type(final int i) {
-        return getL1(i).getType();
+        return Objects.requireNonNull(getL1(i)).getType();
     }
 
     /**
@@ -141,7 +142,7 @@ public class Level2Packet {
         this.packet = ppacket;
 
         boolean ctrl = false;
-        String currentparm = "";
+        StringBuilder currentparm = new StringBuilder();
         int state = 0; // 0 = in between, 1 = in simple parm, 2=in {} parms, 3=in ^Y{^Y} parms
 
         for (byte by : packet.getBytes()) {
@@ -155,45 +156,45 @@ public class Level2Packet {
                 } else if (state == 0) {
                     state = 2;
                 } else if (ctrl) {
-                    currentparm += (char) 25;
-                    currentparm += '{';
+                    currentparm.append((char) 25);
+                    currentparm.append('{');
                 } else {
-                    currentparm += '{';
+                    currentparm.append('{');
                 }
                 ctrl = false;
                 break;
             case '}':
                 if ((state == 3 && ctrl) || state == 2) {
-                    parms.add(currentparm);
-                    currentparm = "";
+                    parms.add(currentparm.toString());
+                    currentparm = new StringBuilder();
                     state = 0;
                 } else if (ctrl) {
-                    currentparm += (char) 25;
-                    currentparm += '}';
+                    currentparm.append((char) 25);
+                    currentparm.append('}');
                 } else {
-                    currentparm += '}';
+                    currentparm.append('}');
                 }
                 ctrl = false;
                 break;
             case ' ':
                 if (ctrl) {
                     ctrl = false;
-                    currentparm += (char) 25;
+                    currentparm.append((char) 25);
                 }
                 if (state > 1) {
-                    currentparm += ' ';
+                    currentparm.append(' ');
                 } else if (state == 1) {
-                    parms.add(currentparm);
-                    currentparm = "";
+                    parms.add(currentparm.toString());
+                    currentparm = new StringBuilder();
                     state = 0;
                 }
                 break;
             default:
                 if (ctrl) {
                     ctrl = false;
-                    currentparm += (char) 25;
+                    currentparm.append((char) 25);
                 }
-                currentparm += (char) by;
+                currentparm.append((char) by);
                 if (state == 0) {
                     state = 1;
                 }
@@ -201,7 +202,7 @@ public class Level2Packet {
             }
         }
         if (currentparm.length() != 0) {
-            parms.add(currentparm);
+            parms.add(currentparm.toString());
         }
         l2 = L2.getL2(parms.get(0));
     }

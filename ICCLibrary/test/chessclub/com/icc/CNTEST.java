@@ -201,8 +201,6 @@ public class CNTEST {
             CN.LLOGONS,164,
             CN.LOADFEN,244,
             CN.LOADGAME,229,
-            CN.LOGONS,166,
-            CN.LOGONS0,77,
             CN.LOGPGN,262,
             CN.LOUDSHOUT,307,
             CN.MAILHELP,153,

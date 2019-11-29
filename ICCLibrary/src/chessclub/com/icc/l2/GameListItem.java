@@ -1,5 +1,6 @@
 package chessclub.com.icc.l2;
 
+import david.logan.chess.support.Color;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
@@ -7,7 +8,6 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 
 import chessclub.com.enums.GamelistStatus;
-import david.logan.chess.support.Color;
 
 /**
  * The class that manages one of the game list items (Level 2 GAMELIST_ITEM packet).

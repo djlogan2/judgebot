@@ -30,8 +30,6 @@ import chessclub.com.icc.handler.interfaces.IChannelQTell;
 import chessclub.com.icc.handler.interfaces.IChannelTell;
 import chessclub.com.icc.handler.interfaces.IChannelsShared;
 import chessclub.com.icc.handler.interfaces.ICommand;
-import chessclub.com.icc.handler.interfaces.IDBMachines;
-import chessclub.com.icc.handler.interfaces.IDBUsers;
 import chessclub.com.icc.handler.interfaces.IFinger;
 import chessclub.com.icc.handler.interfaces.IGameAdjudicated;
 import chessclub.com.icc.handler.interfaces.IGameList;
@@ -41,10 +39,8 @@ import chessclub.com.icc.handler.interfaces.IGetpx;
 import chessclub.com.icc.handler.interfaces.IHelperQuestions;
 import chessclub.com.icc.handler.interfaces.IKeyVersion;
 import chessclub.com.icc.handler.interfaces.IListChanged;
-import chessclub.com.icc.handler.interfaces.ILocation;
 import chessclub.com.icc.handler.interfaces.ILoggedOut;
 import chessclub.com.icc.handler.interfaces.ILoginFailed;
-import chessclub.com.icc.handler.interfaces.ILogons;
 import chessclub.com.icc.handler.interfaces.IManualAccept;
 import chessclub.com.icc.handler.interfaces.IMoveList;
 import chessclub.com.icc.handler.interfaces.IMyGame;
@@ -83,8 +79,6 @@ import chessclub.com.icc.handler.interfaces.IWebAuth;
 import chessclub.com.icc.handler.interfaces.IWhoAmI;
 import chessclub.com.icc.l1.BadCommand;
 import chessclub.com.icc.l1.Complain;
-import chessclub.com.icc.l1.DBMachines;
-import chessclub.com.icc.l1.DBUsers;
 import chessclub.com.icc.l1.FingerNotes;
 import chessclub.com.icc.l1.GameAdjudicated;
 import chessclub.com.icc.l1.Getps;
@@ -92,9 +86,7 @@ import chessclub.com.icc.l1.Getpx;
 import chessclub.com.icc.l1.L1ErrorOnly;
 import chessclub.com.icc.l1.Level1Packet;
 import chessclub.com.icc.l1.ListChanged;
-import chessclub.com.icc.l1.Location;
 import chessclub.com.icc.l1.LoggedOut;
-import chessclub.com.icc.l1.Logons;
 import chessclub.com.icc.l1.Play;
 import chessclub.com.icc.l1.RatingChanged;
 import chessclub.com.icc.l1.Register;
@@ -803,6 +795,8 @@ public class ICCInstance extends Thread {
     }
 
     private void handle2(final IAbstractICCHandler h, final Level1Packet l1) {
+        LOG.debug("handle2, h=" + h.toString() + ", l1=" + l1.toString());
+        LOG.debug("type=" + l1.getType() + ", value=" + l1.getType().ordinal());
         if((l1.getType() == CN.ADMIN || l1.getType() == CN.ADMIN_UN) && !((L1ErrorOnly) l1).hasError()) {
             //pass through to the handler
         } else if(l1.getType() == CN.LIBLIST && l1.numberParms() == 2 && l1.getParm(1).contains("has no games")) {
@@ -831,19 +825,6 @@ public class ICCInstance extends Thread {
             if(h instanceof IFinger)
                 ((IFinger)h).finger((FingerNotes)l1);
             break;
-        case DB_MACHINES:
-        	((IDBMachines)h).dbmachines((DBMachines)l1);
-        	break;
-        case DB_USERS:
-        	((IDBUsers)h).dbusers((DBUsers)l1);
-        	break;
-        case LOCATION:
-        	((ILocation)h).location((Location)l1);
-        	break;
-        case LOGONS:
-        case LOGONS0:
-        	((ILogons)h).logons((Logons)l1);
-        	break;
         case S_EVENTS:
             if(h instanceof ISEvent)
                 ((ISEvent)h).sEvent((SEvent) l1);

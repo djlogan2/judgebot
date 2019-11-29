@@ -1,14 +1,13 @@
 package david.logan.chess.support.test;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-
 import david.logan.chess.support.Board;
 import david.logan.chess.support.Color;
 import david.logan.chess.support.Fen;
 import david.logan.chess.support.Move;
 import david.logan.chess.support.NormalChessGame;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class TestNormalChessGame {
 

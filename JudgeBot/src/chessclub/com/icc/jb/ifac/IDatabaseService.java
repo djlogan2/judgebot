@@ -1,8 +1,8 @@
 package chessclub.com.icc.jb.ifac;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,8 +35,8 @@ public interface IDatabaseService {
 	public SQLReturn removeLoseExempt(int loserid);
 	public SQLReturn addWinExempt(int uniqueId, String winner, String handle);
 	public SQLReturn removeWinExempt(int uniqueId);
-	public void updateAdjudicateRules(ArrayList<HashMap<String,Object>> updateArray) throws Exception;
-    public void updateEngineRules(ArrayList<HashMap<String, Object>> updateArray) throws Exception;
+	public void updateAdjudicateRules(List<Map<String,Object>> updateArray) throws Exception;
+    public void updateEngineRules(List<Map<String, Object>> updateArray) throws Exception;
     public void addMatchedMissedAdjudicationRule(int gameid, int adjrule_id, boolean matched);
     public void addMatchedMissedEngineRule(int gameid, int engrule_id, boolean matched);
     public void adjudicationRuleHit(int gameid, boolean matched, JBAdjudicateAction jbAdjudicateAction);

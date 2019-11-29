@@ -2,7 +2,7 @@ package test.chessclub.com.icc;
 
 import java.util.HashMap;
 
-import chessclub.com.icc.jb.parserInterface;
+import chessclub.com.icc.jb.ifac.parserInterface;
 
 public class testVariables implements parserInterface {
 

@@ -1,0 +1,28 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-war" name="JudgeBot:war exploded">
+    <output-path>$PROJECT_DIR$/out/artifacts/JudgeBot_war_exploded</output-path>
+    <root id="root">
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="JudgeBot" />
+          <element id="module-output" name="ChessSupport" />
+          <element id="module-output" name="ChessUCI" />
+          <element id="module-output" name="ICCLibrary" />
+        </element>
+        <element id="directory" name="lib">
+          <element id="library" level="project" name="lib" />
+          <element id="library" level="project" name="Maven: log4j:log4j:1.2.17" />
+          <element id="library" level="project" name="Maven: joda-time:joda-time:2.4" />
+          <element id="library" level="project" name="Maven: junit:junit:4.12" />
+          <element id="library" level="project" name="Maven: org.hamcrest:hamcrest-core:1.3" />
+          <element id="library" level="project" name="Maven: org.springframework:spring-context:4.0.6.RELEASE" />
+          <element id="library" level="project" name="Maven: org.springframework:spring-tx:4.0.6.RELEASE" />
+          <element id="library" level="project" name="Maven: org.springframework:spring-beans:4.0.6.RELEASE" />
+          <element id="library" level="project" name="Maven: org.mockito:mockito-all:1.9.5" />
+          <element id="library" level="project" name="org.springframework:spring-web:4.0.8.RELEASE" />
+        </element>
+      </element>
+      <element id="javaee-facet-resources" facet="JudgeBot/web/Web" />
+    </root>
+  </artifact>
+</component>

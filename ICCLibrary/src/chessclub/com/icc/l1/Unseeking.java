@@ -40,11 +40,14 @@ public class Unseeking extends Level1Packet {
     private void parse() {
 //        "Seeking" ad #13 removed.
         Pattern p = Pattern.compile("\"Seeking\" ad #(\\d+) removed.");
-        Matcher m = p.matcher(getParm(1));
-        if (m.matches()) {
-            index = Integer.parseInt(m.group(1));
-        } else {
-            error = true;
+        String parm = getParm(1);
+        if(parm != null) {
+            Matcher m = p.matcher(parm);
+            if (m.matches()) {
+                index = Integer.parseInt(m.group(1));
+            } else {
+                error = true;
+            }
         }
     }
 }

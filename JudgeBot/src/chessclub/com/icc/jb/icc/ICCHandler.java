@@ -419,7 +419,7 @@ public class ICCHandler extends DefaultICCAdminCommands
 	        }
         }
         
-        Page<GameLog> page = databaseService.listGames(new PageRequest(0, 25), user1, exact, user2, true);
+        Page<GameLog> page = databaseService.listGames(PageRequest.of(0, 25), user1, exact, user2, true);
         if(page.getContent().size() == 0) {
             qtell(admin.name(), "JudgeBot: No games found");
             return;
