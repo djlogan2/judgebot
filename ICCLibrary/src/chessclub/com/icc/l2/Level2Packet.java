@@ -83,7 +83,11 @@ public class Level2Packet {
         String str = "";
         String comma = "";
         for (int i = 0; i < l1PacketData.length; i++) {
-            str += comma + level1Type(i).name();
+            try {
+                str += comma + level1Type(i).name();
+            } catch(Exception e) {
+                str += comma + e.toString();
+            }
             comma = ",";
         }
         return "[" + str + "/" + (l1key == null ? "" : l1key) + "/" + l2.name() + "] " + packet;
